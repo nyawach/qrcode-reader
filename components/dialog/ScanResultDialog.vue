@@ -48,7 +48,7 @@ const shareUrl = () => {
   const data: ShareData = {
     text: url,
   }
-  if (!navigator.canShare(data)) {
+  if (!navigator.canShare || !navigator.canShare(data)) {
     console.warn('Cannot use Web Share API')
     return
   }
