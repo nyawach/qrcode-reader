@@ -1,10 +1,13 @@
 <template>
   <main class="main">
-    <video
-      ref="video"
-      autoplay
-      playsinline
-    ></video>
+    <div class="render">
+      <video
+        class="video"
+        ref="video"
+        autoplay
+        playsinline
+      ></video>
+    </div>
     <select>
       <template v-for="device in devices">
         <option
@@ -13,10 +16,11 @@
         > {{ device.label }} </option>
       </template>
     </select>
+    <!-- TODO: アイアログ表示する -->
   </main>
 </template>
 <script lang="ts" setup>
-import QrScanner from 'qr-scanner'
+import { useQrScanner } from '~/assets/hooks/useQrScanner'
 
 type Options = {
   id: string
@@ -37,21 +41,7 @@ const setDevices = (infoList: MediaDeviceInfo[]) => {
     }))
 }
 
-const scanner = ref<QrScanner>()
-const setupQrScanner = () => {
-  if (!video.value) return
-  scanner.value = new QrScanner(video.value, (decode) => {
-    console.log(decode)
-  }, {
-    onDecodeError: (err) => {
-      if (err instanceof Error) {
-        console.error(err)
-      }
-    },
-    highlightScanRegion: true,
-    highlightCodeOutline: true,
-  })
-}
+const { scanner, setupQrScanner } = useQrScanner(video)
 
 const play = () => {
   if (!video.value) return
@@ -115,10 +105,22 @@ onUnmounted(() => {
 .main {
     margin: 0;
     padding: 0;
+}
+
+.render {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    object-fit: cover;
+}
+
+.video {
+    min-width: 100%;
+    min-height: 100%;
 }
 </style>
