@@ -8,38 +8,13 @@
         playsinline
       ></video>
     </div>
-    <select>
-      <template v-for="device in devices">
-        <option
-          :value="device.id"
-          :selected="device.selected"
-        > {{ device.label }} </option>
-      </template>
-    </select>
     <!-- TODO: アイアログ表示する -->
   </main>
 </template>
 <script lang="ts" setup>
 import { useQrScanner } from '~/assets/hooks/useQrScanner'
 
-type Options = {
-  id: string
-  label: string
-  selected: boolean
-}
-
 const video = ref<HTMLVideoElement>()
-
-const devices = ref<Options[]>([])
-const setDevices = (infoList: MediaDeviceInfo[]) => {
-  devices.value = infoList
-    .filter(info => info.kind === 'videoinput')
-    .map((info, index) => ({
-      id: info.deviceId,
-      label: info.label,
-      selected: index === 0,
-    }))
-}
 
 const { scanner, setupQrScanner } = useQrScanner(video)
 
@@ -56,11 +31,6 @@ const pause = () => {
   scanner.value.stop()
 }
 
-const setupDevices = async () => {
-  const infoList = await navigator.mediaDevices.enumerateDevices()
-  setDevices(infoList)
-}
-
 const setupCamera = async () => {
   if (!video.value) return
   const stream = await navigator.mediaDevices.getUserMedia({
@@ -73,7 +43,7 @@ const setupCamera = async () => {
   video.value.addEventListener('loadedmetadata', play)
 }
 
-const onUnmountCamera = () => {
+const unmountCamera = () => {
   pause()
   video.value.removeEventListener('loadedmetadata', play)
 }
@@ -91,13 +61,12 @@ onMounted(() => {
     window.addEventListener('resize', resize)
     requestAnimationFrame(() => {
         setupCamera()
-        setupDevices()
     })
 })
 
 onUnmounted(() => {
     window.removeEventListener('resize', resize)
-    onUnmountCamera()
+    unmountCamera()
 })
 </script>
 
