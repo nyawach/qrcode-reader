@@ -1,5 +1,8 @@
 <template>
-<div class="dialog">
+<BaseDialog
+  :is-open="isOpen"
+  @onClose="handleClose"
+>
   <p>
     <a
       :href="url"
@@ -10,15 +13,25 @@
   </p>
   <button @click="copyUrl">Copy</button>
   <button @click="shareUrl">Share</button>
-</div>
+  <button @click="handleClose">Close</button>
+</BaseDialog>
 </template>
 
 <script lang="ts" setup>
+import BaseDialog from '~/components/dialog/BaseDialog.vue'
+
 type Props = {
   url: string
+  isOpen: boolean
 }
 
-const { url } = defineProps<Props>()
+type Emits = {
+  (name: 'onClose'): void
+}
+
+const { url, isOpen } = defineProps<Props>()
+
+const emit = defineEmits<Emits>()
 
 const copyUrl = () => {
   try {
@@ -39,6 +52,10 @@ const shareUrl = () => {
     return
   }
   navigator.share(data)
+}
+
+const handleClose = () => {
+  emit('onClose')
 }
 </script>
 
