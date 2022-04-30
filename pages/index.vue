@@ -8,19 +8,41 @@
         playsinline
       ></video>
     </div>
-    <!-- TODO: アイアログ表示する -->
+    <ScanResultDialog
+      :is-open="isOpen"
+      :url="url"
+      @onClose="handleClose"
+    ></ScanResultDialog>
   </main>
 </template>
 <script lang="ts" setup>
 import { useQrScanner } from '~/assets/hooks/useQrScanner'
+import { useBool } from '~~/assets/hooks/useBool';
+import ScanResultDialog from '~~/components/dialog/ScanResultDialog.vue';
+
+const {
+  bool    : isOpen,
+  setTrue : openDialog,
+  setFalse: closeDialog,
+} = useBool()
+
+const url = ref('')
 
 const video = ref<HTMLVideoElement>()
 
 const { scanner, setupQrScanner } = useQrScanner(video)
 
+const handleClose = () => {
+  closeDialog()
+  scanner.value.start()
+}
+
 const play = () => {
-  if (!video.value) return
-  setupQrScanner()
+  setupQrScanner(result => {
+    url.value = result.data
+    openDialog()
+  })
+  if (!video.value || !scanner.value) return
   video.value.play()
   scanner.value.start()
 }
@@ -48,24 +70,13 @@ const unmountCamera = () => {
   video.value.removeEventListener('loadedmetadata', play)
 }
 
-const width = ref(0)
-const height = ref(0)
-
-const resize = () => {
-    width.value = window.innerWidth
-    height.value = window.innerHeight
-}
-
 onMounted(() => {
-    resize()
-    window.addEventListener('resize', resize)
     requestAnimationFrame(() => {
         setupCamera()
     })
 })
 
 onUnmounted(() => {
-    window.removeEventListener('resize', resize)
     unmountCamera()
 })
 </script>
@@ -85,11 +96,11 @@ onUnmounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-    object-fit: cover;
 }
 
 .video {
     min-width: 100%;
     min-height: 100%;
+    object-fit: cover;
 }
 </style>

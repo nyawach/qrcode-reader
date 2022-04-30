@@ -1,20 +1,21 @@
 <template>
-<BaseDialog
-  :is-open="isOpen"
-  @onClose="handleClose"
->
-  <p>
-    <a
-      :href="url"
-      rel="noopener"
-      target="_blank"
-    > {{ url }}
-    </a>
-  </p>
-  <button @click="copyUrl">Copy</button>
-  <button @click="shareUrl">Share</button>
-  <button @click="handleClose">Close</button>
-</BaseDialog>
+  <BaseDialog
+    :is-open="isOpen"
+    @onClose="handleClose"
+  >
+    <p>
+      <a
+        class="link"
+        :href="url"
+        rel="noopener"
+        target="_blank"
+      > {{ url }}
+      </a>
+    </p>
+    <button @click="copyUrl">Copy</button>
+    <button @click="shareUrl">Share</button>
+    <button @click="handleClose">Close</button>
+  </BaseDialog>
 </template>
 
 <script lang="ts" setup>
@@ -48,7 +49,7 @@ const shareUrl = () => {
     text: url,
   }
   if (!navigator.canShare(data)) {
-    console.error('Cannot use Web Share API')
+    console.warn('Cannot use Web Share API')
     return
   }
   navigator.share(data)
@@ -60,4 +61,7 @@ const handleClose = () => {
 </script>
 
 <style scoped>
+.link {
+  word-break: break-all;
+}
 </style>
